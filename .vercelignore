@@ -1,0 +1,32 @@
+# Vercel Ignore - Only deploy backend files
+# Frontend is deployed separately to GitHub Pages
+
+# Frontend source files
+src/
+public/
+dist/
+
+# Frontend config
+index.html
+vite.config.ts
+tsconfig.json
+tsconfig.app.json
+tsconfig.node.json
+tailwind.config.js
+
+# Build artifacts
+node_modules/
+.cache/
+
+# Development files
+.vscode/
+.idea/
+
+# Docs (not needed in Vercel deployment)
+README.md
+DEPLOYMENT.md
+
+# Only include:
+# - api/
+# - requirements.txt
+# - vercel.json
