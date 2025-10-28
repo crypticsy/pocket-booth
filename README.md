@@ -2,6 +2,8 @@
 
 Your pocket-sized photo booth application that captures instant photo strips with local storage.
 
+<br/>
+
 ## ✨ Features
 
 - 📷 **Photo Strip Capture** - Take 1-4 photos with countdown timer
@@ -14,7 +16,7 @@ Your pocket-sized photo booth application that captures instant photo strips wit
 - ⬇️ **Download Photos** - Save photo strips as JPEG files
 - ☁️ **Google Drive Upload** - Optional cloud storage with OAuth (requires Vercel backend)
 
----
+<br/><br/>
 
 ## 🚀 Quick Start
 
@@ -61,7 +63,7 @@ yarn dev
 
 Visit `http://localhost:5173`
 
----
+<br/><br/>
 
 ## 🎮 How to Use
 
@@ -92,7 +94,7 @@ Visit `http://localhost:5173`
 - **Camera Flip**: Switch between front/back camera (mobile)
 - **Dark Mode**: Toggle light/dark theme
 
----
+<br/><br/>
 
 ## 🔧 Configuration
 
@@ -159,7 +161,7 @@ Access with: `https://yoursite.com/pocket-booth/?key=wedding`
   - Normal mode with unlimited photos
   - No Google Drive upload
 
----
+<br/><br/>
 
 ## 🏗️ Architecture
 
@@ -201,7 +203,7 @@ Access with: `https://yoursite.com/pocket-booth/?key=wedding`
 └─────────────────┘  - 24hr OAuth sessions
 ```
 
----
+<br/><br/>
 
 ## 🛠️ Development
 
@@ -246,21 +248,3 @@ yarn deploy
 
 **Important**: `yarn deploy` only deploys the React frontend to GitHub Pages. For Vercel backend deployment, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 
----
-
-## 📝 Tech Stack
-
-- **React 19** - UI framework
-- **TypeScript** - Type safety
-- **Vite** - Build tool
-- **Tailwind CSS** - Styling
-- **MediaDevices API** - Camera access
-- **Canvas API** - Image processing
-
----
-
-## 🙏 Acknowledgments
-
-- Inspired by classic photo booth machines
-- Built with modern web technologies
-- Designed for simplicity and ease of use
