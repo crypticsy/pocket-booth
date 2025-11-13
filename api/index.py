@@ -830,6 +830,27 @@ def health():
         except Exception as e:
             config_error = str(e)
 
+        # List all key-specific OAuth credentials
+        oauth_vars = {}
+        for key, value in os.environ.items():
+            if key.startswith('GOOGLE_OAUTH_CREDENTIALS_'):
+                key_name = key.replace('GOOGLE_OAUTH_CREDENTIALS_', '')
+                if value:
+                    try:
+                        json.loads(value)
+                        oauth_vars[key_name] = True
+                    except:
+                        oauth_vars[key_name] = False
+                else:
+                    oauth_vars[key_name] = False
+
+        # List all key-specific folder IDs
+        folder_vars = {}
+        for key, value in os.environ.items():
+            if key.startswith('GDRIVE_FOLDER_ID_'):
+                folder_name = key.replace('GDRIVE_FOLDER_ID_', '')
+                folder_vars[folder_name] = bool(value)
+
         return jsonify({
             'status': 'healthy',
             'service': 'Pocket Booth API',
@@ -846,8 +867,8 @@ def health():
             },
             'environment': {
                 'secret_key_set': bool(app.secret_key and app.secret_key != 'dev-secret-key-change-in-production'),
-                'gdrive_folder_configured': bool(os.environ.get('GDRIVE_FOLDER_ID')),
-                'google_oauth_credentials_set': bool(os.environ.get('GOOGLE_OAUTH_CREDENTIALS'))
+                'oauth_credentials_by_key': oauth_vars,
+                'gdrive_folders_by_key': folder_vars
             }
         }), 200
     except Exception as e:
