@@ -2,7 +2,7 @@ export const Footer = () => {
   return (
     <div className="absolute bottom-2 right-3 sm:bottom-4 sm:right-6 z-20">
       <a
-        href="https://github.com/crypticsy"
+        href="https://www.animeshbasnet.com.np/"
         target="_blank"
         rel="noopener noreferrer"
         className="text-slate-700 dark:text-slate-300 text-[8px] sm:text-[10px] md:text-xs font-bold hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
