@@ -5,7 +5,7 @@
 <br/> 
 
 <div align="center" style="flex-direction: column;">
-   <img src="./public/home_screen.png" alt="App Demo" width="100%"/>
+   <img src="./public/demo.gif" alt="App Demo" width="100%"/>
    <div style="font-size: 0.8em; color: gray;">Home Screen</div>
 </div> 
 

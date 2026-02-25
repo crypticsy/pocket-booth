@@ -1,516 +1,377 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
-
+/* ─── Design Tokens ─────────────────────────────────────────── */
 :root {
-  /* CSS variable for dynamic viewport height */
-  /* This will be updated by JavaScript for mobile browsers */
-  --viewport-height: 100vh;
+  --cream:         #fdf8f1;
+  --cream-surface: #f5ede0;
+  --warm-text:     #1c1510;
+  --warm-muted:    #8b7d6e;
+  --accent:        #c4916c;
+  --accent-dark:   #a8784c;
+  --accent-light:  #f0dccf;
+  --border:        #e2d5c3;
   --viewport-height: 100dvh;
 }
 
-/* Support for dvh (dynamic viewport height) where available */
 @supports (height: 100dvh) {
-  :root {
-    --viewport-height: 100dvh;
-  }
+  :root { --viewport-height: 100dvh; }
 }
 
-body,
-html {
-  overflow: hidden;
-  margin: 0;
-  padding: 0;
-  /* Use CSS variable that can be updated by JS */
+/* ─── Reset / Base ──────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0;
+  width: 100%;
   height: var(--viewport-height);
-  width: 100vw;
-  font-family: "Pixelify Sans", cursive, sans-serif;
-  image-rendering: pixelated;
-  image-rendering: -moz-crisp-edges;
-  image-rendering: crisp-edges;
-  /* Prevent pull-to-refresh on mobile */
+  overflow: hidden;
+  background: var(--cream);
+  color: var(--warm-text);
+  font-family: "DM Sans", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
-  /* Prevent iOS Safari bounce */
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  /* Custom cursor - default arrow */
-  cursor: url("/cursor/astro_arrow.cur"), auto;
+  top: 0; left: 0; right: 0; bottom: 0;
 }
 
-/* iOS Safari specific fix for address bar */
 @supports (-webkit-touch-callout: none) {
-  body,
-  html {
-    height: -webkit-fill-available;
-  }
+  html, body { height: -webkit-fill-available; }
 }
 
-/* Root app container */
 #root {
-  height: 100%;
+  height: 100%; width: 100%; overflow: hidden;
+}
+
+@supports (-webkit-touch-callout: none) {
+  #root { height: -webkit-fill-available; }
+}
+
+/* ─── Scroll Snap ───────────────────────────────────────────── */
+.booth-scroll {
+  /* Pin to the exact same value as sections so snap points align perfectly */
+  height: var(--viewport-height);
+  max-height: var(--viewport-height);
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.booth-section {
+  /* Match the scroll container height exactly — avoid any vh vs dvh mismatch */
+  height: var(--viewport-height);
+  min-height: var(--viewport-height);
+  max-height: var(--viewport-height);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  /* Ensure flex children can use flex-1 to fill */
+  flex-shrink: 0;
+}
+
+/* ─── Typography ────────────────────────────────────────────── */
+.font-display { font-family: "DM Serif Display", Georgia, serif; }
+.font-body    { font-family: "DM Sans", system-ui, sans-serif; }
+
+/* ─── Section entrance animations ───────────────────────────── */
+/* Elements start invisible; .is-visible on parent triggers them */
+.section-enter {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity  0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.is-visible .section-enter        { opacity: 1; transform: translateY(0); }
+.is-visible .section-enter.d1     { transition-delay: 0.06s; }
+.is-visible .section-enter.d2     { transition-delay: 0.15s; }
+.is-visible .section-enter.d3     { transition-delay: 0.24s; }
+.is-visible .section-enter.d4     { transition-delay: 0.33s; }
+.is-visible .section-enter.d5     { transition-delay: 0.42s; }
+
+/* scale-in variant for cards */
+.section-enter-scale {
+  opacity: 0;
+  transform: scale(0.93) translateY(16px);
+  transition:
+    opacity   0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.is-visible .section-enter-scale    { opacity: 1; transform: scale(1) translateY(0); }
+.is-visible .section-enter-scale.d1 { transition-delay: 0.1s; }
+.is-visible .section-enter-scale.d2 { transition-delay: 0.18s; }
+.is-visible .section-enter-scale.d3 { transition-delay: 0.26s; }
+.is-visible .section-enter-scale.d4 { transition-delay: 0.34s; }
+
+/* slide-in from right (for sidebar strip preview) */
+.section-enter-right {
+  opacity: 0;
+  transform: translateX(32px);
+  transition:
+    opacity   0.65s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: 0.2s;
+}
+.is-visible .section-enter-right { opacity: 1; transform: translateX(0); }
+
+/* ─── Buttons ───────────────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 0.5rem;
+  background: var(--accent); color: white;
+  border: none; border-radius: 9999px;
+  padding: 0.875rem 2.25rem;
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.9375rem; font-weight: 600; letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s;
+  box-shadow: 0 4px 12px rgba(196,145,108,0.35);
+}
+.btn-primary:hover {
+  background: var(--accent-dark);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(196,145,108,0.45);
+}
+.btn-primary:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 8px rgba(196,145,108,0.3);
+}
+
+.btn-secondary {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 0.5rem;
+  background: transparent; color: var(--warm-text);
+  border: 1.5px solid var(--border); border-radius: 9999px;
+  padding: 0.75rem 1.75rem;
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.9375rem; font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+}
+.btn-secondary:hover {
+  border-color: var(--accent); background: var(--accent-light);
+  transform: translateY(-2px) scale(1.02);
+}
+.btn-secondary:active { transform: scale(0.98); }
+
+.btn-ghost {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 0.5rem; background: transparent; color: var(--warm-muted);
+  border: none; padding: 0.5rem 1rem;
+  font-family: "DM Sans", sans-serif; font-size: 0.875rem; font-weight: 500;
+  cursor: pointer; transition: color 0.2s, transform 0.2s;
+}
+.btn-ghost:hover { color: var(--warm-text); transform: translateY(-1px); }
+
+.btn-light {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 0.5rem;
+  background: rgba(255,255,255,0.12); color: var(--cream);
+  border: 1.5px solid rgba(255,255,255,0.25); border-radius: 9999px;
+  padding: 0.875rem 2.25rem;
+  font-family: "DM Sans", sans-serif; font-size: 0.9375rem; font-weight: 600;
+  cursor: pointer; backdrop-filter: blur(8px);
+  transition: background 0.2s, transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+}
+.btn-light:hover {
+  background: rgba(255,255,255,0.22);
+  transform: translateY(-2px) scale(1.02);
+}
+.btn-light:active { transform: scale(0.98); }
+
+/* ─── Filter Cards ──────────────────────────────────────────── */
+.filter-card {
+  position: relative; border-radius: 12px; overflow: hidden;
+  cursor: pointer; border: 2px solid transparent;
+  transition: border-color 0.2s, transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s;
+  aspect-ratio: 1; background: var(--cream-surface);
+}
+.filter-card:hover {
+  transform: translateY(-4px) scale(1.04);
+  box-shadow: 0 10px 28px rgba(28,21,16,0.14);
+}
+.filter-card:active { transform: scale(0.96); }
+.filter-card.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light), 0 8px 24px rgba(196,145,108,0.2);
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* ─── Strip Count Cards ─────────────────────────────────────── */
+.count-card {
+  flex: 1; aspect-ratio: 1; border-radius: 10px;
+  border: 1.5px solid var(--border); background: white;
+  cursor: pointer; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 4px;
+  transition: border-color 0.2s, background 0.2s,
+              transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s;
+  font-family: "DM Serif Display", serif; color: var(--warm-muted);
+}
+.count-card:hover  { transform: translateY(-3px) scale(1.05); border-color: var(--accent); }
+.count-card:active { transform: scale(0.94); }
+.count-card.active {
+  border-color: var(--accent); background: var(--accent-light);
+  color: var(--accent-dark);
+  box-shadow: 0 4px 16px rgba(196,145,108,0.25);
+  transform: translateY(-2px) scale(1.03);
+}
+
+/* ─── Camera Preview ────────────────────────────────────────── */
+.camera-frame {
+  position: relative; border-radius: 16px; overflow: hidden;
+  background: #0a0a0a; aspect-ratio: 1; width: 100%; max-width: 360px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 24px 48px rgba(0,0,0,0.5);
+  transition: box-shadow 0.4s ease;
+}
+
+@keyframes cameraGlow {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(196,145,108,0.3), 0 24px 48px rgba(0,0,0,0.5); }
+  50%       { box-shadow: 0 0 0 4px rgba(196,145,108,0.7), 0 24px 60px rgba(0,0,0,0.5); }
+}
+.camera-frame.ready { animation: cameraGlow 2s ease-in-out infinite; }
+
+/* ─── Photo Strip (results section) ────────────────────────── */
+.photo-strip {
+  display: flex; flex-direction: column; gap: 3px;
+  background: white; padding: 10px 10px 16px; border-radius: 4px;
+  box-shadow: 0 8px 32px rgba(28,21,16,0.15);
+}
+.photo-strip img { display: block; width: 100%; border-radius: 2px; }
+
+/* strip-preview-sidebar class removed — preview is now inline within the content block */
+
+.preview-frame {
   width: 100%;
   overflow: hidden;
-  position: relative;
+  border-radius: 2px;
 }
 
-/* iOS Safari specific fix for #root */
-@supports (-webkit-touch-callout: none) {
-  #root {
-    height: -webkit-fill-available;
-  }
+.preview-frame img {
+  width: 100%;
+  display: block;
+  aspect-ratio: 1;
+  object-fit: cover;
+  object-position: top;
+  transition: filter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Font utilities */
-.font-micro {
-  font-family: "Pixelify Sans", monospace;
+/* ─── Scroll Indicator ──────────────────────────────────────── */
+@keyframes scrollBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.45; }
+  50%       { transform: translateY(7px); opacity: 1; }
 }
+.scroll-indicator { animation: scrollBounce 1.9s ease-in-out infinite; }
 
-.font-ready-start {
-  font-family: "Press Start 2P", cursive, monospace;
-}
-
-.font-tiny5 {
-  font-family: "Tiny5", monospace;
-}
-
-.font-chango {
-  font-family: "Bytesized", cursive;
-}
-
-/* Mobile-specific utilities */
-@supports (height: 100dvh) {
-  body,
-  html {
-    height: 100dvh;
-  }
-}
-
-/* Mobile optimizations */
-@media (max-width: 768px) {
-  /* Ensure the viewport takes full available space */
-  #root {
-    height: var(--viewport-height);
-  }
-
-  /* Prevent overscroll and address bar issues */
-  body {
-    overflow: hidden;
-    position: fixed;
-    width: 100%;
-    height: 100%;
-  }
-
-  /* iOS Safari mobile browser fix */
-  @supports (-webkit-touch-callout: none) {
-    #root {
-      height: -webkit-fill-available;
-    }
-  }
-}
-
+/* ─── Flash ─────────────────────────────────────────────────── */
 @keyframes flash {
-  0% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
+  0%   { opacity: 0; }
+  50%  { opacity: 1; }
+  100% { opacity: 0; }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+/* ─── Countdown number ──────────────────────────────────────── */
+@keyframes countPop {
+  0%   { transform: scale(1.6); opacity: 0; }
+  30%  { transform: scale(1);   opacity: 1; }
+  80%  { transform: scale(1);   opacity: 1; }
+  100% { transform: scale(0.8); opacity: 0; }
 }
 
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
+/* ─── Divider line ──────────────────────────────────────────── */
+@keyframes lineGrow {
+  from { width: 0; opacity: 0; }
+  to   { width: 40px; opacity: 1; }
 }
-
-.fade-in {
-  animation: fadeIn 0.5s ease-in forwards;
+.accent-line {
+  width: 40px; height: 2px;
+  background: var(--accent); border-radius: 1px;
 }
+.is-visible .accent-line { animation: lineGrow 0.55s cubic-bezier(0.22,1,0.36,1) 0.2s both; }
 
-.fade-out {
-  animation: fadeOut 0.3s ease-out forwards;
+/* ─── Back to Top button ────────────────────────────────────── */
+.back-to-top {
+  position: fixed;
+  bottom: 24px; right: 24px; z-index: 200;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--accent); color: white;
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(196,145,108,0.45);
+  transition: opacity 0.35s, transform 0.35s cubic-bezier(0.22,1,0.36,1), background 0.2s;
 }
-
-/* Wiggle animations for subtle jitter effect */
-@keyframes wiggle {
-  0%,
-  100% {
-    transform: rotate(0deg) translate(0px, 0px);
-  }
-  10% {
-    transform: rotate(0.2deg) translate(0.3px, -0.2px);
-  }
-  20% {
-    transform: rotate(-0.2deg) translate(-0.2px, 0.3px);
-  }
-  30% {
-    transform: rotate(0.3deg) translate(0.2px, 0.2px);
-  }
-  40% {
-    transform: rotate(-0.3deg) translate(-0.3px, -0.2px);
-  }
-  50% {
-    transform: rotate(0.2deg) translate(0.3px, -0.3px);
-  }
-  60% {
-    transform: rotate(-0.2deg) translate(-0.2px, 0.2px);
-  }
-  70% {
-    transform: rotate(0.3deg) translate(0.2px, 0.3px);
-  }
-  80% {
-    transform: rotate(-0.3deg) translate(-0.3px, -0.3px);
-  }
-  90% {
-    transform: rotate(0.1deg) translate(0.2px, -0.2px);
-  }
+.back-to-top:hover {
+  background: var(--accent-dark);
+  transform: translateY(-3px) scale(1.1);
 }
-
-@keyframes wiggle-slow {
-  0%,
-  100% {
-    transform: rotate(0deg) scale(1);
-  }
-  12.5% {
-    transform: rotate(0.3deg) scale(1.001);
-  }
-  25% {
-    transform: rotate(-0.3deg) scale(0.999);
-  }
-  37.5% {
-    transform: rotate(0.4deg) scale(1.002);
-  }
-  50% {
-    transform: rotate(-0.4deg) scale(0.998);
-  }
-  62.5% {
-    transform: rotate(0.3deg) scale(1.001);
-  }
-  75% {
-    transform: rotate(-0.3deg) scale(0.999);
-  }
-  87.5% {
-    transform: rotate(0.1deg) scale(1.001);
-  }
-}
-
-@keyframes wiggle-fast {
-  0%,
-  100% {
-    transform: rotate(0deg) translate(0px, 0px);
-  }
-  10% {
-    transform: rotate(0.4deg) translate(0.4px, -0.3px);
-  }
-  20% {
-    transform: rotate(-0.4deg) translate(-0.4px, 0.3px);
-  }
-  30% {
-    transform: rotate(0.5deg) translate(0.3px, 0.4px);
-  }
-  40% {
-    transform: rotate(-0.5deg) translate(-0.3px, -0.4px);
-  }
-  50% {
-    transform: rotate(0.4deg) translate(0.4px, -0.4px);
-  }
-  60% {
-    transform: rotate(-0.4deg) translate(-0.4px, 0.4px);
-  }
-  70% {
-    transform: rotate(0.3deg) translate(0.3px, 0.3px);
-  }
-  80% {
-    transform: rotate(-0.3deg) translate(-0.3px, -0.3px);
-  }
-  90% {
-    transform: rotate(0.2deg) translate(0.2px, -0.2px);
-  }
-}
-
-/* Pixel/8-bit border styles */
-.doodle-border {
-  border: 2px solid currentColor;
-  position: relative;
-  animation: wiggle 3s ease-in-out infinite;
-  box-shadow: 2px 0 0 0 currentColor, -2px 0 0 0 currentColor,
-    0 2px 0 0 currentColor, 0 -2px 0 0 currentColor;
-}
-
-.doodle-border-thick {
-  border: 3px solid currentColor;
-  position: relative;
-  animation: wiggle-slow 4s ease-in-out infinite;
-  box-shadow: 3px 0 0 0 currentColor, -3px 0 0 0 currentColor,
-    0 3px 0 0 currentColor, 0 -3px 0 0 currentColor;
-}
-
-.doodle-box {
-  border: 3px solid currentColor;
-  animation: wiggle 2.8s ease-in-out infinite;
-  box-shadow: 3px 0 0 0 currentColor, -3px 0 0 0 currentColor,
-    0 3px 0 0 currentColor, 0 -3px 0 0 currentColor;
-}
-
-.doodle-button {
-  border: 3px solid currentColor;
-  transition: all 0.2s ease;
-  position: relative;
-  animation: wiggle 2.5s ease-in-out infinite;
-  box-shadow: 3px 3px 0 0 rgba(0, 0, 0, 0.2);
-}
-
-.doodle-button:hover {
-  animation: wiggle-fast 1.2s ease-in-out infinite;
-  box-shadow: 2px 2px 0 0 rgba(0, 0, 0, 0.3);
-  transform: translate(2px, 2px);
-}
-
-.doodle-button:active {
-  transform: translate(4px, 4px);
-  box-shadow: none;
-  animation: none;
-}
-
-/* Pixel underline effect */
-.wavy-underline {
-  text-decoration: none;
-  position: relative;
-  animation: wiggle 3s ease-in-out infinite;
-}
-
-.wavy-underline::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -4px;
-  height: 3px;
-  background: currentColor;
-}
-
-/* Sketchy shadow effect */
-.sketch-shadow {
-  filter: drop-shadow(3px 3px 0px rgba(0, 0, 0, 0.3))
-    drop-shadow(-1px -1px 0px rgba(0, 0, 0, 0.1));
-}
-
-/* Cloud floating animations */
-@keyframes float {
-  0%,
-  100% {
-    transform: translateX(0px) translateY(0px);
-  }
-  25% {
-    transform: translateX(10px) translateY(-5px);
-  }
-  50% {
-    transform: translateX(20px) translateY(0px);
-  }
-  75% {
-    transform: translateX(10px) translateY(5px);
-  }
-}
-
-@keyframes float-delayed {
-  0%,
-  100% {
-    transform: translateX(0px) translateY(0px);
-  }
-  25% {
-    transform: translateX(-8px) translateY(5px);
-  }
-  50% {
-    transform: translateX(-15px) translateY(0px);
-  }
-  75% {
-    transform: translateX(-8px) translateY(-5px);
-  }
-}
-
-@keyframes float-slow {
-  0%,
-  100% {
-    transform: translateX(0px) translateY(0px);
-  }
-  33% {
-    transform: translateX(15px) translateY(-8px);
-  }
-  66% {
-    transform: translateX(5px) translateY(8px);
-  }
-}
-
-/* Flying bird animation */
-@keyframes fly {
-  0%,
-  100% {
-    transform: translateX(0px) translateY(0px);
-  }
-  25% {
-    transform: translateX(50px) translateY(-20px);
-  }
-  50% {
-    transform: translateX(100px) translateY(-10px);
-  }
-  75% {
-    transform: translateX(150px) translateY(-30px);
-  }
-}
-
-.animate-float {
-  animation: float 8s ease-in-out infinite;
-}
-
-.animate-float-delayed {
-  animation: float-delayed 10s ease-in-out infinite;
-}
-
-.animate-float-slow {
-  animation: float-slow 12s ease-in-out infinite;
-}
-
-.animate-fly {
-  animation: fly 15s linear infinite;
-}
-
-/* Slow spin animation for sun */
-@keyframes spin-slow {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.animate-spin-slow {
-  animation: spin-slow 8s linear infinite;
-}
-
-/* Custom cursor styles */
-* {
-  cursor: url("/cursor/astro_arrow.cur") 8 8, auto;
-}
-
-a, button, [role="button"], .cursor-pointer, .cursor-pointer *, a:hover, button:hover, [role="button"]:hover, .cursor-pointer:hover, .cursor-pointer *:hover {
-  cursor: url("/cursor/astro_link.cur") 8 8, pointer;
-}
-
-[disabled],
-.disabled,
-.cursor-not-allowed {
-  cursor: url("/cursor/astro_unavail.cur") 8 8, not-allowed;
-}
-
-.cursor-wait,
-.loading {
-  cursor: url("/cursor/astro_working.ani") 8 8, wait;
-}
-
-/* TV Screen CRT Effect */
-.tv-screen {
-  position: relative;
-  background: #0a0a0a;
-  box-shadow:
-    inset 0 0 50px rgba(0, 255, 0, 0.1),
-    inset 0 0 100px rgba(0, 0, 0, 0.8);
-}
-
-.tv-screen::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: repeating-linear-gradient(
-    0deg,
-    rgba(0, 0, 0, 0.15),
-    rgba(0, 0, 0, 0.15) 1px,
-    transparent 1px,
-    transparent 2px
-  );
+.back-to-top:active { transform: scale(0.94); }
+.back-to-top.hidden {
+  opacity: 0; transform: translateY(10px) scale(0.85);
   pointer-events: none;
-  z-index: 10;
 }
 
-.tv-screen::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(
-    ellipse at center,
-    transparent 0%,
-    rgba(0, 0, 0, 0.3) 100%
-  );
-  pointer-events: none;
-  z-index: 10;
+/* ─── Hero decorative dots ──────────────────────────────────── */
+@keyframes dotFloat {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-5px); }
+}
+.hero-dot {
+  border-radius: 2px;
+  background: var(--accent);
+  animation: dotFloat 3s ease-in-out infinite;
+}
+.hero-dot:nth-child(1) { animation-delay: 0s; }
+.hero-dot:nth-child(2) { animation-delay: 0.25s; }
+.hero-dot:nth-child(3) { animation-delay: 0.5s; }
+.hero-dot:nth-child(4) { animation-delay: 0.75s; }
+.hero-dot:nth-child(5) { animation-delay: 1s; }
+
+/* ─── Page transitions ──────────────────────────────────────── */
+@keyframes fadeIn  { from { opacity: 0 } to { opacity: 1 } }
+@keyframes fadeOut { from { opacity: 1 } to { opacity: 0 } }
+.fade-in  { animation: fadeIn  0.4s ease-in  forwards; }
+.fade-out { animation: fadeOut 0.3s ease-out forwards; }
+
+/* ─── Slide in strip (results) ──────────────────────────────── */
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(44px) rotate(-1deg); }
+  to   { opacity: 1; transform: translateY(0)   rotate(0deg);  }
+}
+.slide-in-strip {
+  animation: slideInUp 0.75s cubic-bezier(0.22,1,0.36,1) 0.1s both;
 }
 
-/* TV Screen Flicker Animation */
-@keyframes tv-flicker {
-  0%, 100% {
-    opacity: 0.97;
+/* ─── Custom Scrollbar (booth-scroll) ───────────────────────── */
+/* Semi-transparent so it blends on both cream and dark sections */
+.booth-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 125, 110, 0.35) transparent;
+}
+.booth-scroll::-webkit-scrollbar {
+  width: 3px;
+}
+.booth-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.booth-scroll::-webkit-scrollbar-thumb {
+  background: rgba(139, 125, 110, 0.35);
+  border-radius: 2px;
+}
+.booth-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 125, 110, 0.6);
+}
+
+/* mobile-strip-preview removed — preview column is always shown inline */
+
+/* ─── Mobile viewport ───────────────────────────────────────── */
+@media (max-width: 768px) {
+  #root { height: var(--viewport-height); }
+  body  { overflow: hidden; position: fixed; width: 100%; height: 100%; }
+  @supports (-webkit-touch-callout: none) {
+    #root { height: -webkit-fill-available; }
   }
-  50% {
-    opacity: 1;
-  }
 }
-
-.tv-flicker {
-  animation: tv-flicker 0.15s infinite alternate;
-}
-
-/* Bouncing Character Animation - Sequential */
-@keyframes bounce-char {
-  0%, 25%, 100% {
-    transform: translateY(0px);
-  }
-  5% {
-    transform: translateY(-10px);
-  }
-  10% {
-    transform: translateY(0px);
-  }
-}
-
-.bounce-char {
-  display: inline-block;
-  animation: bounce-char 4.8s ease-in-out infinite;
-}
-
-/* Sequential stagger - each character bounces one after another */
-.bounce-char:nth-child(1) { animation-delay: 0s; }
-.bounce-char:nth-child(2) { animation-delay: 0.4s; }
-.bounce-char:nth-child(3) { animation-delay: 0.8s; }
-.bounce-char:nth-child(4) { animation-delay: 1.2s; }
-.bounce-char:nth-child(5) { animation-delay: 1.6s; }
-.bounce-char:nth-child(6) { animation-delay: 2s; }
-.bounce-char:nth-child(7) { animation-delay: 2.4s; }
-.bounce-char:nth-child(8) { animation-delay: 2.8s; }
-.bounce-char:nth-child(9) { animation-delay: 3.2s; }
-.bounce-char:nth-child(10) { animation-delay: 3.6s; }
-.bounce-char:nth-child(11) { animation-delay: 4s; }
-.bounce-char:nth-child(12) { animation-delay: 4.4s; }
