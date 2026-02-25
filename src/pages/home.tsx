@@ -1015,9 +1015,9 @@ export const HomePage = ({
             </div>
 
             {photoStrip ? (
-              <div className="flex flex-col sm:flex-row gap-8 items-start flex-1 overflow-y-auto">
+              <div className="flex flex-col sm:flex-row gap-8 items-center sm:items-start flex-1 overflow-y-auto">
                 {/* Strip preview */}
-                <div className="slide-in-strip flex-shrink-0 mx-auto sm:mx-0">
+                <div className="slide-in-strip flex-shrink-0">
                   <div className="photo-strip" style={{ maxWidth: 170 }}>
                     {photoStrip.photos.map((photo, i) => (
                       <img key={i} src={photo} alt={`Photo ${i + 1}`} />
@@ -1036,7 +1036,7 @@ export const HomePage = ({
                 </div>
 
                 {/* Actions */}
-                <div className="flex flex-col gap-3 flex-1 section-enter d3">
+                <div className="flex flex-col gap-3 w-full sm:flex-1 items-stretch section-enter d3">
                   <button
                     onClick={() =>
                       downloadPhotoStrip(
