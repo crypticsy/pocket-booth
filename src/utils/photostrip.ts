@@ -1,8 +1,16 @@
 export const createPhotoStripCanvas = async (
   photos: string[],
+  date?: string,
+  bg: string = "#ffffff",
+  textColor: string = "#8b7d6e",
   canvasRef?: HTMLCanvasElement
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
+    if (photos.length === 0) {
+      reject(new Error('No photos provided'));
+      return;
+    }
+
     const canvas = canvasRef || document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     if (!ctx) {
@@ -10,33 +18,52 @@ export const createPhotoStripCanvas = async (
       return;
     }
 
-    const outerBorder = 40;
-    const photoBorder = 15;
-    const photoSize = 400;
+    const photoSize = 560;
+    const paddingH = 36;
+    const paddingTop = 36;
+    const gap = 12;
+    const textAreaHeight = 52;
+    const paddingBottom = 36 + textAreaHeight;
     const numPhotos = photos.length;
-    const totalPhotoHeight = photoSize * numPhotos;
-    const totalBorderHeight = photoBorder * (numPhotos - 1);
-    const totalWidth = photoSize + (outerBorder * 2);
-    const totalHeight = totalPhotoHeight + totalBorderHeight + (outerBorder * 2);
+
+    const totalWidth = photoSize + paddingH * 2;
+    const totalPhotoHeight = photoSize * numPhotos + gap * (numPhotos - 1);
+    const totalHeight = paddingTop + totalPhotoHeight + paddingBottom;
 
     canvas.width = totalWidth;
     canvas.height = totalHeight;
 
-    // Fill with black background
-    ctx.fillStyle = '#000000';
+    // Strip background
+    ctx.fillStyle = bg;
     ctx.fillRect(0, 0, totalWidth, totalHeight);
 
     let loadedImages = 0;
+
+    const drawText = () => {
+      const label = date
+        ? `POCKET BOOTH · ${date.toUpperCase()}`
+        : 'POCKET BOOTH';
+      const textY = paddingTop + totalPhotoHeight + 42;
+
+      ctx.fillStyle = textColor;
+      ctx.font = '500 22px "DM Sans", system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      try {
+        (ctx as any).letterSpacing = '0.14em';
+      } catch {}
+      ctx.fillText(label, totalWidth / 2, textY);
+    };
 
     photos.forEach((photoUrl, index) => {
       const img = new window.Image();
       img.src = photoUrl;
       img.onload = () => {
-        const yPos = outerBorder + (index * (photoSize + photoBorder));
-        ctx.drawImage(img, outerBorder, yPos, photoSize, photoSize);
+        const yPos = paddingTop + index * (photoSize + gap);
+        ctx.drawImage(img, paddingH, yPos, photoSize, photoSize);
         loadedImages++;
 
         if (loadedImages === photos.length) {
+          drawText();
           resolve(canvas.toDataURL('image/jpeg', 0.95));
         }
       };
@@ -65,21 +92,22 @@ const isRestrictedBrowser = (): boolean => {
 
 /**
  * Downloads a photo strip. Falls back to opening in a new tab for restricted browsers.
- * Returns true if download was attempted, false if user needs to take action
  */
-export const downloadPhotoStrip = async (photos: string[], filename: string): Promise<boolean> => {
+export const downloadPhotoStrip = async (
+  photos: string[],
+  filename: string,
+  date?: string,
+  bg?: string,
+  textColor?: string
+): Promise<boolean> => {
   try {
-    const dataUrl = await createPhotoStripCanvas(photos);
+    const dataUrl = await createPhotoStripCanvas(photos, date, bg, textColor);
 
-    // Check if we're in Instagram browser - it blocks both downloads and popups
     if (isInstagramBrowser()) {
-      // Return false to indicate the app should show instructions to open in regular browser
       return false;
     }
 
-    // Check if we're in a restricted browser (like Brave)
     if (isRestrictedBrowser()) {
-      // For Brave and other restricted browsers, open in new tab with instructions
       const newWindow = window.open();
       if (newWindow) {
         newWindow.document.write(`
@@ -94,38 +122,40 @@ export const downloadPhotoStrip = async (photos: string[], filename: string): Pr
                   margin: 0;
                   padding: 20px;
                   font-family: system-ui, -apple-system, sans-serif;
-                  background: #000;
-                  color: #fff;
+                  background: #fdf8f1;
+                  color: #1c1510;
                   text-align: center;
                 }
                 img {
-                  max-width: 100%;
+                  max-width: 300px;
                   height: auto;
                   margin: 20px auto;
                   display: block;
-                  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+                  box-shadow: 0 8px 32px rgba(28,21,16,0.15);
+                  border-radius: 4px;
                 }
                 .instructions {
-                  background: rgba(255,255,255,0.1);
+                  background: #f5ede0;
                   padding: 15px;
-                  border-radius: 8px;
+                  border-radius: 12px;
                   margin: 20px auto;
                   max-width: 400px;
+                  color: #8b7d6e;
                 }
                 .download-btn {
                   display: inline-block;
                   padding: 12px 24px;
-                  background: #fff;
-                  color: #000;
+                  background: #c4916c;
+                  color: white;
                   text-decoration: none;
-                  border-radius: 8px;
-                  font-weight: bold;
+                  border-radius: 9999px;
+                  font-weight: 600;
                   margin: 10px;
                 }
               </style>
             </head>
             <body>
-              <h1>Your Photo Strip</h1>
+              <h1 style="font-family: serif; color: #1c1510;">Your Photo Strip</h1>
               <img src="${dataUrl}" alt="${filename}" />
               <div class="instructions">
                 <p><strong>To save your photo:</strong></p>
@@ -138,12 +168,10 @@ export const downloadPhotoStrip = async (photos: string[], filename: string): Pr
         newWindow.document.close();
         return true;
       } else {
-        // If popup was blocked, try direct download anyway
         attemptDirectDownload(dataUrl, filename);
         return true;
       }
     } else {
-      // For normal browsers, use direct download
       attemptDirectDownload(dataUrl, filename);
       return true;
     }
@@ -154,20 +182,13 @@ export const downloadPhotoStrip = async (photos: string[], filename: string): Pr
   }
 };
 
-/**
- * Attempts a direct download using a temporary link element
- */
 const attemptDirectDownload = (dataUrl: string, filename: string) => {
   const link = document.createElement('a');
   link.download = filename;
   link.href = dataUrl;
   link.style.display = 'none';
-
-  // Add to document, click, and remove
   document.body.appendChild(link);
   link.click();
-
-  // Clean up after a short delay
   setTimeout(() => {
     document.body.removeChild(link);
   }, 100);

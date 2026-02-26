@@ -3,13 +3,7 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import { GalleryPage, HomePage } from './pages';
 import { initializeConfigFromURL } from './utils/configManager';
-
-type PhotoStripType = {
-  id: number;
-  photos: string[];
-  timestamp: string;
-  date: string;
-};
+import { PhotoStripType } from './types';
 
 type AppState = {
   photoStrips: PhotoStripType[];

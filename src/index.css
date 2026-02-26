@@ -198,8 +198,8 @@ html, body {
 .filter-card:active { transform: scale(0.96); }
 .filter-card.active {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-light), 0 8px 24px rgba(196,145,108,0.2);
-  transform: translateY(-2px) scale(1.02);
+  box-shadow:  0 0 0 5px var(--accent), 0 8px 24px rgba(196,145,108,0.25);
+  transform: translateY(-2px) scale(1.03);
 }
 
 /* ─── Strip Count Cards ─────────────────────────────────────── */
@@ -312,6 +312,17 @@ html, body {
 .back-to-top.hidden {
   opacity: 0; transform: translateY(10px) scale(0.85);
   pointer-events: none;
+}
+
+/* ─── App icon wiggle ───────────────────────────────────────── */
+@keyframes iconWiggle {
+  0%, 100% { transform: translateY(-50%) rotate(38deg) scale(1); }
+  25%       { transform: translateY(-57%) rotate(46deg) scale(1.07); }
+  75%       { transform: translateY(-45%) rotate(31deg) scale(0.95); }
+}
+.icon-wiggle {
+  animation: iconWiggle 3s ease-in-out 0.9s infinite;
+  animation-fill-mode: backwards;
 }
 
 /* ─── Hero decorative dots ──────────────────────────────────── */
