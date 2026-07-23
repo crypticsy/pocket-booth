@@ -116,8 +116,6 @@ type ConfigureSectionProps = {
   stripStyle: StripStyle;
   setStripStyle: (s: StripStyle) => void;
   isMobile: boolean;
-  isKeyBased: boolean;
-  photosRemaining: number | undefined;
   scrollToSection: (index: number) => void;
 };
 
@@ -131,8 +129,6 @@ export const ConfigureSection = ({
   stripStyle,
   setStripStyle,
   isMobile,
-  isKeyBased,
-  photosRemaining,
   scrollToSection,
 }: ConfigureSectionProps) => {
   return (
@@ -256,24 +252,6 @@ export const ConfigureSection = ({
                   <FaCameraRotate className="w-3.5 h-3.5" />
                   {cameraFacing === "user" ? "Front camera" : "Back camera"}
                 </button>
-              </div>
-            )}
-
-            {/* Photo limit */}
-            {isKeyBased && photosRemaining !== undefined && (
-              <div
-                className="mb-3 px-3 py-2 rounded-xl text-xs font-medium"
-                style={{
-                  background:
-                    photosRemaining === 0 ? "#fef2f2" : "var(--accent-light)",
-                  color:
-                    photosRemaining === 0 ? "#b91c1c" : "var(--accent-dark)",
-                  border: `1px solid ${photosRemaining === 0 ? "#fecaca" : "var(--border)"}`,
-                }}
-              >
-                {photosRemaining === 0
-                  ? "Upload limit reached."
-                  : `${photosRemaining} upload${photosRemaining !== 1 ? "s" : ""} remaining.`}
               </div>
             )}
 

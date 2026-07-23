@@ -15,6 +15,7 @@ type ResultsSectionProps = {
   uploadMessage: string;
   showUploadButton: boolean;
   isLimitReached: boolean;
+  photosRemaining: number | undefined;
   handleUpload: () => void;
   retake: () => void;
   navigateTo: (route: string) => void;
@@ -28,6 +29,7 @@ export const ResultsSection = ({
   uploadMessage,
   showUploadButton,
   isLimitReached,
+  photosRemaining,
   handleUpload,
   retake,
   navigateTo,
@@ -72,7 +74,7 @@ export const ResultsSection = ({
               <div
                 className="photo-strip"
                 style={{
-                  maxWidth: 110,
+                  width: "clamp(150px, 42vw, 210px)",
                   background: style.bg,
                   boxShadow:
                     stripStyle === "black"
@@ -86,7 +88,7 @@ export const ResultsSection = ({
                 <div
                   className="mt-2 text-center uppercase"
                   style={{
-                    fontSize: "0.5rem",
+                    fontSize: "0.65rem",
                     color: style.textColor,
                     letterSpacing: "0.14em",
                   }}
@@ -116,32 +118,56 @@ export const ResultsSection = ({
               </button>
 
               {showUploadButton && (
-                <button
-                  onClick={handleUpload}
-                  disabled={uploadStatus === "uploading" || isLimitReached}
-                  className="btn-secondary"
-                  style={{
-                    padding: "0.6rem 1rem",
-                    fontSize: "0.875rem",
-                    opacity:
-                      uploadStatus === "uploading" || isLimitReached ? 0.5 : 1,
-                    cursor:
-                      uploadStatus === "uploading" || isLimitReached
-                        ? "not-allowed"
-                        : "pointer",
-                  }}
-                >
-                  <FaCloudArrowUp
-                    className={`w-3.5 h-3.5 ${uploadStatus === "uploading" ? "animate-pulse" : ""}`}
-                  />
-                  {isLimitReached
-                    ? "Limit reached"
-                    : uploadStatus === "uploading"
-                      ? "Uploading…"
-                      : uploadStatus === "success"
-                        ? "Uploaded!"
-                        : "Upload"}
-                </button>
+                <>
+                  {photosRemaining !== undefined && (
+                    <div
+                      className="px-3 py-2 rounded-xl text-xs font-medium"
+                      style={{
+                        background:
+                          photosRemaining === 0
+                            ? "#fef2f2"
+                            : "var(--accent-light)",
+                        color:
+                          photosRemaining === 0
+                            ? "#b91c1c"
+                            : "var(--accent-dark)",
+                        border: `1px solid ${photosRemaining === 0 ? "#fecaca" : "var(--border)"}`,
+                      }}
+                    >
+                      {photosRemaining === 0
+                        ? "Upload limit reached."
+                        : `${photosRemaining} upload${photosRemaining !== 1 ? "s" : ""} remaining.`}
+                    </div>
+                  )}
+                  <button
+                    onClick={handleUpload}
+                    disabled={uploadStatus === "uploading" || isLimitReached}
+                    className="btn-secondary"
+                    style={{
+                      padding: "0.6rem 1rem",
+                      fontSize: "0.875rem",
+                      opacity:
+                        uploadStatus === "uploading" || isLimitReached
+                          ? 0.5
+                          : 1,
+                      cursor:
+                        uploadStatus === "uploading" || isLimitReached
+                          ? "not-allowed"
+                          : "pointer",
+                    }}
+                  >
+                    <FaCloudArrowUp
+                      className={`w-3.5 h-3.5 ${uploadStatus === "uploading" ? "animate-pulse" : ""}`}
+                    />
+                    {isLimitReached
+                      ? "Limit reached"
+                      : uploadStatus === "uploading"
+                        ? "Uploading…"
+                        : uploadStatus === "success"
+                          ? "Uploaded!"
+                          : "Upload"}
+                  </button>
+                </>
               )}
 
               {uploadMessage && (

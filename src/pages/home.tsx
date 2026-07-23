@@ -357,8 +357,6 @@ export const HomePage = ({
           stripStyle={stripStyle}
           setStripStyle={setStripStyle}
           isMobile={isMobile}
-          isKeyBased={isKeyBased}
-          photosRemaining={photosRemaining}
           scrollToSection={scrollToSection}
         />
 
@@ -386,6 +384,7 @@ export const HomePage = ({
           uploadMessage={uploadMessage}
           showUploadButton={showUploadButton}
           isLimitReached={isLimitReached}
+          photosRemaining={photosRemaining}
           handleUpload={handleUpload}
           retake={retake}
           navigateTo={navigateTo}
