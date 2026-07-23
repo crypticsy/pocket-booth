@@ -73,7 +73,7 @@ export const HomePage = ({
     stageRef.current = stage;
   }, [stage]);
 
-  const uploadConfigured = isUploadConfigured();
+  const uploadConfigured = isUploadConfigured(getCurrentConfigKey());
   const isKeyBased = isKeyBasedConfig();
   const showUploadButton = uploadConfigured && isKeyBased;
   const isLimitReached = hasReachedPhotoLimit();

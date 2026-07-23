@@ -131,6 +131,20 @@ export const clearConfigKey = (): void => {
 };
 
 /**
+ * Get the Apps Script Web App URL configured for a given key.
+ * Each key can point to a different Google account's deployment.
+ * Falls back to the currently active config key when none is passed.
+ */
+export const getAppsScriptURL = (key?: string | null): string | null => {
+  const configKey = key ?? getCurrentConfigKey();
+  if (!configKey) return null;
+
+  const envVarName = `VITE_APPS_SCRIPT_URL_${configKey.toUpperCase()}`;
+  const url = (import.meta.env as any)[envVarName];
+  return url || null;
+};
+
+/**
  * Get the storage key for tracking photo count for the current config key
  */
 const getPhotoCountStorageKey = (): string => {

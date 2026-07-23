@@ -35,7 +35,7 @@ yarn deploy
 
 This deploys only the frontend. Photos are stored in browser's localStorage.
 
-#### Option 2: Full Deployment (GitHub Pages + Vercel)
+#### Option 2: Full Deployment (GitHub Pages + Google Apps Script)
 **With Google Drive cloud upload support**
 
 1. **Deploy Frontend to GitHub Pages:**
@@ -43,18 +43,18 @@ This deploys only the frontend. Photos are stored in browser's localStorage.
    yarn deploy
    ```
 
-2. **Deploy Backend to Vercel:**
-   - Create project in Vercel dashboard
-   - Download OAuth JSON from Google Cloud Console
-   - Set `GOOGLE_OAUTH_CREDENTIALS` environment variable
-   - **Note**: Vercel deployment is manual via their web dashboard
+2. **Deploy an Apps Script Web App:**
+   - Paste [`apps-script/Code.gs`](./apps-script/Code.gs) into a new project at
+     [script.google.com](https://script.google.com/)
+   - Deploy it as a Web App (Execute as: Me, Who has access: Anyone)
+   - Copy the deployment URL
 
-3. **Connect Frontend to Backend:**
+3. **Connect Frontend to the Script:**
    - Create `.env.production` locally (gitignored, won't be committed)
-   - Add: `VITE_VERCEL_API_URL=https://your-vercel-url.vercel.app`
+   - Add: `VITE_APPS_SCRIPT_URL_{KEY}=https://script.google.com/macros/s/.../exec`
    - Redeploy frontend: `yarn deploy`
 
-📖 **Full guide**: [DEPLOYMENT.md](./DEPLOYMENT.md)
+📖 **Full guide**: [GOOGLE_DRIVE_SETUP.md](./GOOGLE_DRIVE_SETUP.md)
 
 <br/>
 
@@ -132,19 +132,19 @@ Perfect for events with controlled photo counts.
 │   (Frontend)    │  - Camera API
 └────────┬────────┘  - Photo capture
          │
-         │ API Calls
+         │ POST (per-key script URL)
          ▼
 ┌─────────────────┐
-│     Vercel      │  Backend (Python Flask)
-│   (Backend)     │  - OAuth 2.0 flow
-└────────┬────────┘  - Photo upload API
+│  Apps Script    │  Web App (runs as the deploying
+│   Web App       │  Google account — no OAuth flow)
+└────────┬────────┘
          │
-         │ Google Drive API
+         │ Drive API (same account)
          ▼
 ┌─────────────────┐
 │  Google Drive   │  Cloud storage
 │                 │  - Photo backup
-└─────────────────┘  - 24hr OAuth sessions
+└─────────────────┘
 ```
 
 <br/>

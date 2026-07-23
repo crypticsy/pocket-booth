@@ -1,24 +1,22 @@
-// Google Drive upload utility for Vercel backend
+// Google Drive upload utility backed by a Google Apps Script Web App
 import { createPhotoStripCanvas } from './photostrip';
-
-// Configuration - you can set this via environment variable
-const VERCEL_API_URL = import.meta.env.VITE_VERCEL_API_URL || '';
+import { getAppsScriptURL } from './configManager';
 
 export interface UploadResponse {
   success: boolean;
   file_id?: string;
   file_name?: string;
   web_view_link?: string;
-  message?: string;
   error?: string;
 }
 
 /**
- * Upload a single image to Google Drive via Vercel backend
- * The backend handles all OAuth authorization - no frontend auth needed
+ * Upload a single image to Google Drive via the key's Apps Script deployment.
+ * Content-Type is text/plain to keep this a CORS-simple request — Apps Script
+ * web apps don't support handling a preflight OPTIONS request.
  * @param imageDataUrl - Base64 encoded image data URL (e.g., from canvas.toDataURL())
  * @param filename - Filename to use for the upload
- * @param key - Optional key name for multi-account support
+ * @param key - Config key selecting which Apps Script deployment to use
  * @returns Upload response with file details or error
  */
 export async function uploadImageToGoogleDrive(
@@ -26,29 +24,29 @@ export async function uploadImageToGoogleDrive(
   filename: string,
   key?: string | null
 ): Promise<UploadResponse> {
-  if (!VERCEL_API_URL) {
+  const scriptURL = getAppsScriptURL(key);
+  if (!scriptURL) {
     return {
       success: false,
-      error: 'Google Drive upload not configured. Set VITE_VERCEL_API_URL environment variable.',
+      error: 'Google Drive upload not configured. Set VITE_APPS_SCRIPT_URL_<KEY>.',
     };
   }
 
   try {
-    const response = await fetch(`${VERCEL_API_URL}/api/upload`, {
+    const response = await fetch(scriptURL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'text/plain;charset=utf-8',
       },
       body: JSON.stringify({
         image: imageDataUrl,
         filename: filename,
-        key: key || undefined,  // Send key to backend for account selection
       }),
     });
 
     const data: UploadResponse = await response.json();
 
-    if (!response.ok) {
+    if (!response.ok || !data.success) {
       return {
         success: false,
         error: data.error || 'Upload failed',
@@ -69,7 +67,7 @@ export async function uploadImageToGoogleDrive(
  * Upload photo strip to Google Drive as a single combined image
  * @param images - Array of base64 encoded image data URLs
  * @param baseFilename - Base filename for the photo strip
- * @param key - Optional key name for multi-account support
+ * @param key - Config key selecting which Apps Script deployment to use
  * @returns Upload response
  */
 export async function uploadPhotoStripToGoogleDrive(
@@ -99,8 +97,8 @@ export async function uploadPhotoStripToGoogleDrive(
 }
 
 /**
- * Helper to check if uploads are configured
+ * Helper to check if uploads are configured for the given key
  */
-export function isUploadConfigured(): boolean {
-  return !!VERCEL_API_URL;
+export function isUploadConfigured(key?: string | null): boolean {
+  return !!getAppsScriptURL(key);
 }
